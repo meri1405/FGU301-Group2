@@ -473,6 +473,7 @@ GameObject:
   m_Component:
   - component: {fileID: 271521906}
   - component: {fileID: 271521905}
+  - component: {fileID: 271521911}
   - component: {fileID: 271521908}
   - component: {fileID: 271521904}
   - component: {fileID: 271521909}
@@ -659,8 +660,25 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 1, y: 1.1111112}
+  m_Size: {x: 0.8, y: 1.1111112}
   m_Direction: 0
+--- !u!114 &271521911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 271521903}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d52a56bd2db4cc24397732c0a43053c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  OnDeathEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &324470988
 GameObject:
   m_ObjectHideFlags: 0
@@ -764,7 +782,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bullet: {fileID: 4122565992612807282, guid: 00818f04400b8354c96f7dbafdd74b81, type: 3}
   firePoint: {fileID: 365066743}
-  fireRate: 0.5
+  fireRate: 0.25
   bulletForce: 9
 --- !u!1 &365066742
 GameObject:
@@ -5195,6 +5213,8 @@ GameObject:
   - component: {fileID: 1596761596}
   - component: {fileID: 1596761595}
   - component: {fileID: 1596761598}
+  - component: {fileID: 1596761600}
+  - component: {fileID: 1596761599}
   m_Layer: 0
   m_Name: Zombie 1
   m_TagString: Enemy
@@ -5288,7 +5308,7 @@ Transform:
   m_GameObject: {fileID: 1596761594}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 3.25, y: -0.34, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5307,7 +5327,64 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 271521906}
-  speed: 2
+  speed: 1
+  damage: 10
+  health: 30
+  deathAnimationDuration: 2
+--- !u!70 &1596761599
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1596761594}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Size: {x: 0.8, y: 1}
+  m_Direction: 0
+--- !u!114 &1596761600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1596761594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d52a56bd2db4cc24397732c0a43053c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  OnDeathEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1597942751
 GameObject:
   m_ObjectHideFlags: 0
