@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,6 +13,8 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] private int penetration = 1; // Số lần xuyên qua
     [SerializeField] private Transform firePoint; // Vị trí bắn đạn
 
+    
+    private Health health;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
     private Vector2 movementVector;
@@ -22,9 +25,16 @@ public class PlayerControl : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        health = GetComponent<Health>();
 
         if (animator == null)
-            Debug.LogError("Animator component not found on player");
+            UnityEngine.Debug.LogError("Animator component not found on player");
+            
+        if (health == null)
+        {
+            UnityEngine.Debug.LogError("Health component not found on player");
+            health = gameObject.AddComponent<Health>(); // Tự động thêm Health nếu chưa có
+        }
             
         // Nếu chưa gán vũ khí trong Inspector, tìm kiếm nó theo tên
         if (weaponTransform == null)
@@ -38,6 +48,10 @@ public class PlayerControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Nếu đã chết, không cho di chuyển
+        if (health != null && health.IsDead())
+            return;
+
         float horizontal = 0.0f;
         if (Keyboard.current.leftArrowKey.isPressed)
         {
@@ -127,6 +141,37 @@ public class PlayerControl : MonoBehaviour
             if (bullet != null)
             {
                 bullet.Init(damageAmount, penetration, moveDirection.normalized);
+            }
+        }
+    }
+
+    // Phương thức để xử lý khi player bị va chạm
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        // Kiểm tra health có null không trước khi sử dụng
+        if (health == null)
+        {
+            UnityEngine.Debug.LogError("Health component is missing on Player!");
+            return;
+        }
+        
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            // Lấy component Enemy từ object va chạm
+            ZombieChase enemy = collision.gameObject.GetComponent<ZombieChase>();
+            if (enemy != null)
+            {
+                try
+                {
+           
+                    // Tạo hiệu ứng bị đẩy lùi (knockback)
+                    Vector2 knockbackDir = (transform.position - collision.transform.position).normalized;
+                    transform.position += (Vector3)knockbackDir * 1f;
+                }
+                catch (System.Exception e)
+                {
+                    UnityEngine.Debug.LogError("Error when processing collision with enemy: " + e.Message);
+                }
             }
         }
     }
