@@ -7,6 +7,10 @@ public class PlayerControl : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 1.0f;
     [SerializeField] private Transform weaponTransform; // Tham chiếu tới vũ khí
+    [SerializeField] private GameObject bulletPrefab; // Prefab của đạn
+    [SerializeField] private float damageAmount = 10.0f; // Số lượng sát thương
+    [SerializeField] private int penetration = 1; // Số lần xuyên qua
+    [SerializeField] private Transform firePoint; // Vị trí bắn đạn
 
     private Animator animator;
     private SpriteRenderer spriteRenderer;
@@ -85,6 +89,12 @@ public class PlayerControl : MonoBehaviour
         position.x = position.x + moveSpeed * Time.deltaTime * horizontal;
         position.y = position.y + moveSpeed * Time.deltaTime * vertical;
         transform.position = position;
+
+        // Kiểm tra phím bắn đạn
+        if (Keyboard.current.spaceKey.wasPressedThisFrame)
+        {
+            LaunchBullet();
+        }
     }
     
     // Hàm để lật vũ khí
@@ -101,6 +111,23 @@ public class PlayerControl : MonoBehaviour
             Vector3 localPos = weaponTransform.localPosition;
             localPos.x *= -1;
             weaponTransform.localPosition = localPos;
+        }
+    }
+
+    // Hàm để bắn đạn
+    private void LaunchBullet()
+    {
+        if (bulletPrefab != null && firePoint != null)
+        {
+            Vector3 firePosition = firePoint.position;
+            Vector2 moveDirection = isFacingRight ? Vector2.right : Vector2.left;
+
+            GameObject bulletObj = Instantiate(bulletPrefab, firePosition, Quaternion.identity);
+            Bullet bullet = bulletObj.GetComponent<Bullet>();
+            if (bullet != null)
+            {
+                bullet.Init(damageAmount, penetration, moveDirection.normalized);
+            }
         }
     }
 }
