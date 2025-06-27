@@ -1,33 +1,48 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-public class Bullet : MonoBehaviour
-{
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    public float speed = 10f; // Tốc độ của viên đạn
-    public float lifetime = 2f; // Thời gian sống của viên đạn
-    void Start()
+    public class Bullet : MonoBehaviour
     {
-        
-    }
+        public float damage;
+        public int per;
 
-    // Update is called once per frame
-    void Update()
-    {
-        transform.position += transform.right * speed * Time.deltaTime;
-    }
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Zombie"))
+        Rigidbody2D rigid;
+
+        void Awake()
         {
-            // Xử lý va chạm với Zombie
-            Destroy(other.gameObject); // Giết Zombie
-            Destroy(gameObject); // Hủy viên đạn
+            rigid = GetComponent<Rigidbody2D>();
         }
-        else if (other.CompareTag("Wall"))
+
+        public void Init(float damage, int per, Vector3 dir)
         {
-            // Hủy viên đạn khi va chạm với tường
-            Destroy(gameObject);
+            this.damage = damage;
+            this.per = per;
+
+            if (per >= 0) {
+                // Thiết lập vận tốc cho đạn
+                rigid.linearVelocity = dir * 15f; // linearVelocity đã được đổi thành velocity
+                
+                // Xoay đạn theo hướng di chuyển
+                // Nếu sprite đang hướng lên trên, thêm offset 90 độ:
+                float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90f;
+                transform.rotation = Quaternion.Euler(0, 0, angle);
+                
+                // Debug để kiểm tra
+                Debug.Log($"Bullet angle: {angle}, Direction: {dir}");
+            }
+        }
+
+        void OnTriggerEnter2D(Collider2D collision)
+        {
+            if (!collision.CompareTag("Enemy") || per == -100)
+                return;
+
+            per--;
+
+            if (per < 0) {
+                rigid.linearVelocity = Vector2.zero;
+                gameObject.SetActive(false);
+            }
         }
     }
-
-}
