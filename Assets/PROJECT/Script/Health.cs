@@ -11,7 +11,11 @@ public class Health : MonoBehaviour
     private Animator animator;
     private SpriteRenderer spriteRenderer;
     private bool isDead = false;
-
+    public float GetMaxHealth()
+    {
+        return maxHealth;
+    }
+    
     void Start()
     {
         animator = GetComponent<Animator>();
