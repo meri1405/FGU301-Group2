@@ -93,7 +93,17 @@ public class Health : MonoBehaviour
     {
         yield return new WaitForSeconds(deathAnimationDuration);
         Debug.Log("Game Over!");
-        // GameManager.Instance.GameOver(); // nếu có
+
+        // Gọi UIManager để hiện EndPanel
+        UIManager ui = FindObjectOfType<UIManager>();
+        if (ui != null)
+        {
+            ui.endGame();
+        }
+        else
+        {
+            Debug.LogError("UIManager not found in scene!");
+        }
     }
 
     public float GetHealthPercent()
