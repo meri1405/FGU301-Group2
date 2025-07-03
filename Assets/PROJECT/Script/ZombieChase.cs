@@ -133,10 +133,16 @@ public class ZombieChase : MonoBehaviour
             Debug.Log("Setting Die trigger on animator");
             animator.SetTrigger("Die");
         }
-        
+
         // Có thể thêm âm thanh chết ở đây
         // AudioSource.PlayClipAtPoint(deathSound, transform.position);
-        
+
+        if (gameObject.CompareTag("Enemy"))
+        {
+            Debug.Log("Enemy died → +1 kill");
+            KillCounterTMP.Instance.AddKill();
+        }
+
         // Hủy game object sau khi animation kết thúc
         Debug.Log($"Scheduled destruction in {deathAnimationDuration} seconds");
         Destroy(gameObject, deathAnimationDuration);
