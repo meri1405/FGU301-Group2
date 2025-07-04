@@ -5,7 +5,7 @@ public class HealthPickup : MonoBehaviour
     [SerializeField] private float healthAmount = 20f;
     [SerializeField] private AudioClip pickupSound;
     [SerializeField] private GameObject pickupEffect;
-
+    public float lifeTime = 10f;
     void Start()
     {
         // Đảm bảo object có Collider2D và được set là Trigger
@@ -19,6 +19,8 @@ public class HealthPickup : MonoBehaviour
             Debug.LogWarning($"HealthPickup {gameObject.name} Collider2D cần được set là Trigger!");
             collider.isTrigger = true;
         }
+
+         Destroy(gameObject, lifeTime);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
