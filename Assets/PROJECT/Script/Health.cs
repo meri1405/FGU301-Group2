@@ -44,6 +44,35 @@ public class Health : MonoBehaviour
         }
     }
 
+    // Phương thức tăng máu (được gọi từ HealthPickup)
+    public void AddHealth(float amount)
+    {
+        if (isDead)
+        {
+            Debug.Log($"{gameObject.name} is dead. Cannot heal.");
+            return;
+        }
+
+        float oldHealth = currentHealth;
+        // Tăng máu nhưng không vượt quá giới hạn
+        currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
+
+        float actualHealing = currentHealth - oldHealth;
+        
+        Debug.Log($"{gameObject.name} healed {actualHealing} HP. Current health: {currentHealth}/{maxHealth}");
+
+        // Cập nhật UI nếu có (có thể thêm sau)
+        UpdateHealthUI();
+    }
+
+    // Phương thức cập nhật UI (có thể mở rộng sau)
+    private void UpdateHealthUI()
+    {
+        // Tìm và cập nhật UI health bar nếu có
+        // Có thể gọi event hoặc tìm UIManager để cập nhật
+        // Tạm thời để trống, có thể mở rộng sau
+    }
+
     private IEnumerator FlashDamage()
     {
         spriteRenderer.color = Color.red;
