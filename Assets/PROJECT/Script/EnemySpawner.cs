@@ -1,34 +1,63 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+
 public class EnemySpawner : MonoBehaviour
 {
-    public GameObject enemyPrefab;             // Gán prefab zombie vào đây
-    public Transform[] spawnPoints;            // Các vị trí spawn
-    public float spawnInterval = 3f;           // Bao lâu spawn 1 lần
-    public int maxEnemies = 10;                // Giới hạn số lượng
+    public GameObject normalZombiePrefab;
+    public GameObject fastZombiePrefab;
+    public GameObject tankZombiePrefab;
 
-    private int enemiesSpawned = 0;
+    public Transform[] spawnPoints;
+    public float spawnInterval = 0.5f;
 
-    void Start()
+    private List<GameObject> spawnedZombies = new List<GameObject>();
+
+    public void SpawnZombiesForRound(int round, int totalZombies)
     {
-        StartCoroutine(SpawnLoop());
+        StartCoroutine(SpawnRoutine(round, totalZombies));
     }
 
-    IEnumerator SpawnLoop()
+    IEnumerator SpawnRoutine(int round, int totalZombies)
     {
-        while (enemiesSpawned < maxEnemies)
+        for (int i = 0; i < totalZombies; i++)
         {
-            SpawnEnemy();
-            enemiesSpawned++;
+            GameObject zombieToSpawn = GetZombieTypeForRound(round);
+            int spawnIndex = Random.Range(0, spawnPoints.Length);
+            GameObject zombie = Instantiate(zombieToSpawn, spawnPoints[spawnIndex].position, Quaternion.identity);
+            spawnedZombies.Add(zombie);
             yield return new WaitForSeconds(spawnInterval);
         }
     }
 
-    void SpawnEnemy()
+    GameObject GetZombieTypeForRound(int round)
     {
-        int index = Random.Range(0, spawnPoints.Length);
-        Transform spawnPoint = spawnPoints[index];
+        if (round == 1)
+            return normalZombiePrefab;
 
-        Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity);
+        if (round == 2)
+            return Random.value < 0.5f ? normalZombiePrefab : fastZombiePrefab;
+
+        if (round == 3)
+            return Random.value < 0.5f ? normalZombiePrefab : tankZombiePrefab;
+
+        if (round == 4)
+            return Random.value < 0.5f ? fastZombiePrefab : tankZombiePrefab;
+
+        // Round 5 trở lên
+        float rand = Random.value;
+        if (rand < 0.33f) return normalZombiePrefab;
+        else if (rand < 0.66f) return fastZombiePrefab;
+        else return tankZombiePrefab;
+    }
+
+    public void ClearAllZombies()
+    {
+        foreach (var z in spawnedZombies)
+        {
+            if (z != null)
+                Destroy(z);
+        }
+        spawnedZombies.Clear();
     }
 }
