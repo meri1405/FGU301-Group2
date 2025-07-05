@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 1947265266499785998}
   - component: {fileID: 869671505532467654}
   - component: {fileID: 5565521140753652273}
-  - component: {fileID: 8759914905465170508}
   - component: {fileID: 7128437032277952520}
   - component: {fileID: 758970735925598219}
+  - component: {fileID: 643135709486772650}
   m_Layer: 0
   m_Name: Zombie 1
   m_TagString: Enemy
@@ -113,23 +113,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &8759914905465170508
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 953508345806919708}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e7c55936cef3214eba1bd7ec0d2b453, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 0}
-  speed: 1
-  damage: 10
-  health: 30
-  deathAnimationDuration: 2
 --- !u!114 &7128437032277952520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182,3 +165,20 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.8, y: 1}
   m_Direction: 0
+--- !u!114 &643135709486772650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 953508345806919708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e7c55936cef3214eba1bd7ec0d2b453, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 0}
+  speed: 1
+  damage: 5
+  health: 50
+  deathAnimationDuration: 2
