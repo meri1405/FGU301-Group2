@@ -114,6 +114,9 @@ public class ZombieChase : MonoBehaviour
         Debug.Log("Die method called. Setting isDead = true");
         isDead = true;
 
+        // Phát âm thanh enemy chết
+        PlayEnemyDeathSound();
+
         // Vô hiệu hóa collision để không va chạm với player
         Collider2D col = GetComponent<Collider2D>();
         if (col != null)
@@ -134,9 +137,6 @@ public class ZombieChase : MonoBehaviour
             animator.SetTrigger("Die");
         }
 
-        // Có thể thêm âm thanh chết ở đây
-        // AudioSource.PlayClipAtPoint(deathSound, transform.position);
-
         if (gameObject.CompareTag("Enemy"))
         {
             Debug.Log("Enemy died → +1 kill");
@@ -146,6 +146,20 @@ public class ZombieChase : MonoBehaviour
         // Hủy game object sau khi animation kết thúc
         Debug.Log($"Scheduled destruction in {deathAnimationDuration} seconds");
         Destroy(gameObject, deathAnimationDuration);
+    }
+
+    // Phát âm thanh khi enemy chết
+    private void PlayEnemyDeathSound()
+    {
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayEnemyDeathSound();
+            Debug.Log("🔊 Playing enemy death sound");
+        }
+        else
+        {
+            Debug.LogWarning("AudioManager.Instance is null - cannot play enemy death sound!");
+        }
     }
 
     // Phương thức lấy lượng sát thương của zombie

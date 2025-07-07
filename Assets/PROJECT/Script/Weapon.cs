@@ -35,11 +35,11 @@ public class Weapon : MonoBehaviour
         transform.rotation = rotation;
         if(transform.eulerAngles.z >90 && transform.eulerAngles.z<270)
         {
-            transform.localScale = new Vector3(1,-1,0);
+            transform.localScale = new Vector3(1,-1,1);
         }
         else
         {
-            transform.localScale  = new Vector3(1, 1, 0);
+            transform.localScale  = new Vector3(1, 1, 1);
         }
     }
     void FireBullet()
@@ -48,5 +48,11 @@ public class Weapon : MonoBehaviour
         GameObject bulletInstance = Instantiate(bullet, firePoint.position, Quaternion.identity);
         Rigidbody2D rb = bulletInstance.GetComponent<Rigidbody2D>();
         rb.AddForce(transform.right * bulletForce,ForceMode2D.Impulse);
+        
+        // Phát âm thanh bắn súng
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayShootSound();
+        }
     }
 }
