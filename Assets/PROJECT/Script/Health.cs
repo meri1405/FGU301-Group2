@@ -37,6 +37,15 @@ public class Health : MonoBehaviour
 
         StartCoroutine(FlashDamage());
 
+        // Phát âm thanh bị thương nếu là player (đơn giản)
+        if (gameObject.CompareTag("Player"))
+        {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayHurtSound();
+            }
+        }
+
         if (currentHealth <= 0)
         {
             Debug.Log($"{gameObject.name} health <= 0 → DIE()");
@@ -58,8 +67,14 @@ public class Health : MonoBehaviour
         currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
 
         float actualHealing = currentHealth - oldHealth;
-        
+
         Debug.Log($"{gameObject.name} healed {actualHealing} HP. Current health: {currentHealth}/{maxHealth}");
+
+        // Phát âm thanh hồi máu (đơn giản)
+        if (actualHealing > 0 && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayHealSound();
+        }
 
         // Cập nhật UI nếu có (có thể thêm sau)
         UpdateHealthUI();
@@ -84,6 +99,36 @@ public class Health : MonoBehaviour
     {
         Debug.Log($"{gameObject.name} DIED");
         isDead = true;
+
+        // Phát âm thanh chết (đơn giản)
+        if (AudioManager.Instance != null)
+        {
+            if (gameObject.CompareTag("Player"))
+            {
+                AudioManager.Instance.PlayPlayerDeathSound();
+            }
+            else if (gameObject.CompareTag("Enemy"))
+            {
+                AudioManager.Instance.PlayEnemyDeathSound();
+            }
+        }
+
+        // Xử lý riêng cho Player khi chết
+        if (gameObject.CompareTag("Player"))
+        {
+            // Destroy weapon của player
+            PlayerControl playerControl = GetComponent<PlayerControl>();
+            if (playerControl != null)
+            {
+                playerControl.DestroyWeapon();
+            }
+            
+            // Dừng walk sound
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.StopWalkSound();
+            }
+        }
 
         Collider2D col = GetComponent<Collider2D>();
         if (col != null)

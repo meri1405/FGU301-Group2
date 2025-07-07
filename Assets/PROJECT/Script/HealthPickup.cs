@@ -3,7 +3,6 @@
 public class HealthPickup : MonoBehaviour
 {
     [SerializeField] private float healthAmount = 20f;
-    [SerializeField] private AudioClip pickupSound;
     [SerializeField] private GameObject pickupEffect;
     public float lifeTime = 10f;
     void Start()
@@ -43,12 +42,6 @@ public class HealthPickup : MonoBehaviour
 
                 // Tăng máu cho người chơi
                 playerHealth.AddHealth(healthAmount);
-
-                // Phát âm thanh (nếu có)
-                if (pickupSound != null)
-                {
-                    AudioSource.PlayClipAtPoint(pickupSound, transform.position);
-                }
 
                 // Tạo hiệu ứng hạt (nếu có)
                 if (pickupEffect != null)

@@ -8,17 +8,13 @@ public class PlayerControl : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 1.0f;
     [SerializeField] private Transform weaponTransform; // Tham chiếu tới vũ khí
-    [SerializeField] private GameObject bulletPrefab; // Prefab của đạn
-    [SerializeField] private float damageAmount = 10.0f; // Số lượng sát thương
-    [SerializeField] private int penetration = 1; // Số lần xuyên qua
-    [SerializeField] private Transform firePoint; // Vị trí bắn đạn
 
-    
     private Health health;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
     private Vector2 movementVector;
     private bool isFacingRight = true; // Biến để theo dõi hướng nhân vật
+    private bool wasMoving = false; // Để theo dõi trạng thái di chuyển
 
     // Start is called before the first frame update
     void Start()
@@ -50,7 +46,14 @@ public class PlayerControl : MonoBehaviour
     {
         // Nếu đã chết, không cho di chuyển
         if (health != null && health.IsDead())
+        {
+            // Dừng walk sound nếu player chết
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.StopWalkSound();
+            }
             return;
+        }
 
         float horizontal = 0.0f;
         if (Keyboard.current.leftArrowKey.isPressed || Keyboard.current.aKey.isPressed)
@@ -91,24 +94,41 @@ public class PlayerControl : MonoBehaviour
         
         // Tính toán tốc độ thực tế (magnitude của vector di chuyển)
         float currentSpeed = movementVector.magnitude;
+        bool isMoving = currentSpeed > 0;
 
         // Cập nhật tham số speed trong Animator
         if (animator != null)
         {
             animator.SetFloat("Speed", currentSpeed);
         }
+        
+        // Xử lý âm thanh bước chân
+        HandleWalkingSound(isMoving);
 
         // Di chuyển nhân vật
         Vector2 position = transform.position;
         position.x = position.x + moveSpeed * Time.deltaTime * horizontal;
         position.y = position.y + moveSpeed * Time.deltaTime * vertical;
         transform.position = position;
-
-        // Kiểm tra phím bắn đạn
-        if (Keyboard.current.spaceKey.wasPressedThisFrame)
+    }
+    
+    private void HandleWalkingSound(bool isMoving)
+    {
+        if (AudioManager.Instance != null)
         {
-            LaunchBullet();
+            if (isMoving && !wasMoving)
+            {
+                // Bắt đầu di chuyển - phát walk sound liên tục
+                AudioManager.Instance.StartWalkSound();
+            }
+            else if (!isMoving && wasMoving)
+            {
+                // Dừng di chuyển - dừng walk sound ngay lập tức
+                AudioManager.Instance.StopWalkSound();
+            }
         }
+        
+        wasMoving = isMoving;
     }
     
     // Hàm để lật vũ khí
@@ -127,21 +147,28 @@ public class PlayerControl : MonoBehaviour
             weaponTransform.localPosition = localPos;
         }
     }
-
-    // Hàm để bắn đạn
-    private void LaunchBullet()
+    
+    // Method để destroy weapon khi player chết
+    public void DestroyWeapon()
     {
-        if (bulletPrefab != null && firePoint != null)
+        if (weaponTransform != null)
         {
-            Vector3 firePosition = firePoint.position;
-            Vector2 moveDirection = isFacingRight ? Vector2.right : Vector2.left;
-
-            GameObject bulletObj = Instantiate(bulletPrefab, firePosition, Quaternion.identity);
-            Bullet bullet = bulletObj.GetComponent<Bullet>();
-            if (bullet != null)
-            {
-                bullet.Init(damageAmount, penetration, moveDirection.normalized);
-            }
+            UnityEngine.Debug.Log("Destroying player weapon: " + weaponTransform.name);
+            Destroy(weaponTransform.gameObject);
+            weaponTransform = null;
+        }
+        else
+        {
+            UnityEngine.Debug.Log("No weapon to destroy - weaponTransform is null");
+        }
+    }
+    
+    // Method để phát âm thanh khi bị thương (có thể gọi từ Health script)
+    public void PlayHurtSound()
+    {
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayHurtSound();
         }
     }
 
@@ -163,6 +190,8 @@ public class PlayerControl : MonoBehaviour
             {
                 try
                 {
+                    // Phát âm thanh bị thương
+                    PlayHurtSound();
            
                     // Tạo hiệu ứng bị đẩy lùi (knockback)
                     Vector2 knockbackDir = (transform.position - collision.transform.position).normalized;
@@ -173,6 +202,15 @@ public class PlayerControl : MonoBehaviour
                     UnityEngine.Debug.LogError("Error when processing collision with enemy: " + e.Message);
                 }
             }
+        }
+    }
+    
+    // Đảm bảo dừng walk sound khi player bị disable/destroy
+    void OnDisable()
+    {
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopWalkSound();
         }
     }
 }
