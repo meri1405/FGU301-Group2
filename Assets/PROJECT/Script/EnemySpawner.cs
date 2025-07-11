@@ -25,10 +25,14 @@ public class EnemySpawner : MonoBehaviour
             GameObject zombieToSpawn = GetZombieTypeForRound(round);
             int spawnIndex = Random.Range(0, spawnPoints.Length);
             GameObject zombie = Instantiate(zombieToSpawn, spawnPoints[spawnIndex].position, Quaternion.identity);
+
+            Debug.Log($"[Round {round}] Spawned: {zombieToSpawn.name} at point {spawnIndex}");
+
             spawnedZombies.Add(zombie);
             yield return new WaitForSeconds(spawnInterval);
         }
     }
+
 
     GameObject GetZombieTypeForRound(int round)
     {
@@ -41,9 +45,7 @@ public class EnemySpawner : MonoBehaviour
         if (round == 3)
             return Random.value < 0.5f ? normalZombiePrefab : tankZombiePrefab;
 
-        if (round == 4)
-            return Random.value < 0.5f ? fastZombiePrefab : tankZombiePrefab;
-
+        
         // Round 5 trở lên
         float rand = Random.value;
         if (rand < 0.33f) return normalZombiePrefab;

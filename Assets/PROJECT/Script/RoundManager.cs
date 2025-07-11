@@ -11,6 +11,9 @@ public class RoundManager : MonoBehaviour
     public float timeBetweenRounds = 3f;
     public int maxRounds = 5;
 
+    [Header("Win UI")]
+    public GameObject endPanel;
+
     [Header("UI Elements")]
     public TMP_Text roundText;
     public TMP_Text timerText;
@@ -25,6 +28,7 @@ public class RoundManager : MonoBehaviour
 
     void Start()
     {
+        endPanel.SetActive(false);
         StartCoroutine(HandleRounds());
     }
 
@@ -52,11 +56,21 @@ public class RoundManager : MonoBehaviour
                 yield return null;
             }
 
+            // ✅ Kiểm tra nếu đã hết round 3 thì win luôn
+            if (currentRound == 3)
+            {
+                yield return new WaitForSeconds(1f); // Nghỉ 1 chút
+                //yield return StartCoroutine(ShowWinTransition()); // Hiệu ứng "YOU WIN!"
+                WinGame();
+                yield break;
+            }
+
             yield return new WaitForSeconds(timeBetweenRounds);
         }
 
-        WinGame();
+        WinGame(); // nếu đi hết maxRounds mới thắng
     }
+
 
     IEnumerator ShowRoundTransition(int round)
     {
@@ -68,11 +82,14 @@ public class RoundManager : MonoBehaviour
 
     void WinGame()
     {
-        roundText.text = "YOU WIN!";
+        roundText.text = "";
         timerText.text = "";
-        winScreen.SetActive(true);
+
+        roundTransitionText.gameObject.SetActive(false);
+
         spawner.ClearAllZombies();
-        Time.timeScale = 0f; // Dừng game (tuỳ chọn)
+        endPanel.SetActive(true); // ✅ Hiện UI Win
+        Time.timeScale = 0f;
     }
 
     string FormatTime(float t)
@@ -81,4 +98,15 @@ public class RoundManager : MonoBehaviour
         int seconds = Mathf.FloorToInt(t % 60f);
         return string.Format("{0:00}:{1:00}", minutes, seconds);
     }
+    //IEnumerator ShowWinTransition()
+    //{
+    //    roundTransitionText.text = " YOU WIN!";
+    //    roundTransitionText.fontSize = 80;
+    //    roundTransitionText.color = Color.yellow;
+    //    roundTransitionText.gameObject.SetActive(true);
+
+    //    yield return new WaitForSeconds(2f);
+
+    //    roundTransitionText.gameObject.SetActive(false);
+    //}
 }

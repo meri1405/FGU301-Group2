@@ -141,6 +141,7 @@ public class ZombieChase : MonoBehaviour
         {
             Debug.Log("Enemy died → +1 kill");
             KillCounterTMP.Instance.AddKill();
+            FindObjectOfType<PlayerDash>()?.OnEnemyKilled();
         }
 
         // Hủy game object sau khi animation kết thúc
