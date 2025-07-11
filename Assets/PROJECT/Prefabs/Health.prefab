@@ -139,5 +139,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthAmount: 20
-  pickupSound: {fileID: 0}
   pickupEffect: {fileID: 0}
+  lifeTime: 10
