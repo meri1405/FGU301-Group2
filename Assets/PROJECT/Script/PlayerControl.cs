@@ -9,6 +9,12 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] private float moveSpeed = 1.0f;
     [SerializeField] private Transform weaponTransform; // Tham chiếu tới vũ khí
 
+    // Boost effects
+    private float currentSpeedMultiplier = 1f;
+    private float currentDamageMultiplier = 1f;
+    private Coroutine speedBoostCoroutine;
+    private Coroutine powerBoostCoroutine;
+
     private Health health;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
@@ -105,10 +111,11 @@ public class PlayerControl : MonoBehaviour
         // Xử lý âm thanh bước chân
         HandleWalkingSound(isMoving);
 
-        // Di chuyển nhân vật
+        // Di chuyển nhân vật với speed boost
+        float effectiveMoveSpeed = moveSpeed * currentSpeedMultiplier;
         Vector2 position = transform.position;
-        position.x = position.x + moveSpeed * Time.deltaTime * horizontal;
-        position.y = position.y + moveSpeed * Time.deltaTime * vertical;
+        position.x = position.x + effectiveMoveSpeed * Time.deltaTime * horizontal;
+        position.y = position.y + effectiveMoveSpeed * Time.deltaTime * vertical;
         transform.position = position;
     }
     
@@ -212,5 +219,92 @@ public class PlayerControl : MonoBehaviour
         {
             AudioManager.Instance.StopWalkSound();
         }
+    }
+
+    // Methods for boost effects
+    public void ApplySpeedBoost(float multiplier, float duration)
+    {
+        // Dừng coroutine hiện tại nếu có
+        if (speedBoostCoroutine != null)
+        {
+            StopCoroutine(speedBoostCoroutine);
+        }
+
+        // Bắt đầu speed boost mới
+        speedBoostCoroutine = StartCoroutine(SpeedBoostCoroutine(multiplier, duration));
+    }
+
+    public void ApplyPowerBoost(float multiplier, float duration)
+    {
+        // Dừng coroutine hiện tại nếu có
+        if (powerBoostCoroutine != null)
+        {
+            StopCoroutine(powerBoostCoroutine);
+        }
+
+        // Bắt đầu power boost mới
+        powerBoostCoroutine = StartCoroutine(PowerBoostCoroutine(multiplier, duration));
+    }
+
+    private IEnumerator SpeedBoostCoroutine(float multiplier, float duration)
+    {
+        currentSpeedMultiplier = multiplier;
+        UnityEngine.Debug.Log($"Speed boost activated: {multiplier}x for {duration} seconds");
+        
+        // Có thể thêm hiệu ứng visual ở đây (đổi màu player, particle effect, etc.)
+        if (spriteRenderer != null)
+        {
+            Color originalColor = spriteRenderer.color;
+            spriteRenderer.color = Color.cyan; // Màu xanh để chỉ speed boost
+            
+            yield return new WaitForSeconds(duration);
+            
+            spriteRenderer.color = originalColor;
+        }
+        else
+        {
+            yield return new WaitForSeconds(duration);
+        }
+
+        currentSpeedMultiplier = 1f;
+        speedBoostCoroutine = null;
+        UnityEngine.Debug.Log("Speed boost ended");
+    }
+
+    private IEnumerator PowerBoostCoroutine(float multiplier, float duration)
+    {
+        currentDamageMultiplier = multiplier;
+        UnityEngine.Debug.Log($"Power boost activated: {multiplier}x for {duration} seconds");
+        
+        // Có thể thêm hiệu ứng visual ở đây
+        if (spriteRenderer != null)
+        {
+            Color originalColor = spriteRenderer.color;
+            spriteRenderer.color = Color.red; // Màu đỏ để chỉ power boost
+            
+            yield return new WaitForSeconds(duration);
+            
+            spriteRenderer.color = originalColor;
+        }
+        else
+        {
+            yield return new WaitForSeconds(duration);
+        }
+
+        currentDamageMultiplier = 1f;
+        powerBoostCoroutine = null;
+        UnityEngine.Debug.Log("Power boost ended");
+    }
+
+    // Getter cho damage multiplier để weapon có thể sử dụng
+    public float GetCurrentDamageMultiplier()
+    {
+        return currentDamageMultiplier;
+    }
+
+    // Getter cho speed multiplier
+    public float GetCurrentSpeedMultiplier()
+    {
+        return currentSpeedMultiplier;
     }
 }

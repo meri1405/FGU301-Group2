@@ -16,6 +16,8 @@ public class Bullet : MonoBehaviour
     [SerializeField] private GameObject hitEffect; // Hiệu ứng khi bắn trúng
 
     private Rigidbody2D rigid;
+    private float baseDamage; // Lưu damage gốc
+    private PlayerControl playerControl; // Tham chiếu tới PlayerControl
 
     void Awake()
     {
@@ -25,34 +27,75 @@ public class Bullet : MonoBehaviour
             rigid = gameObject.AddComponent<Rigidbody2D>();
             rigid.gravityScale = 0;
         }
+
+        // Tìm PlayerControl trong scene
+        playerControl = FindObjectOfType<PlayerControl>();
+        if (playerControl == null)
+        {
+            Debug.LogWarning("PlayerControl not found in scene!");
+        }
     }
 
     void Start()
     {
+        // Lưu damage gốc khi bullet được tạo
+        baseDamage = damage;
+        
+        // Áp dụng damage boost ngay khi bullet được tạo
+        ApplyDamageBoost();
+
         // Hủy viên đạn sau thời gian lifetime
         Destroy(gameObject, lifetime);
     }
 
     public void Init(float damage, int per, Vector3 dir)
     {
+        // Lưu damage gốc
+        this.baseDamage = damage;
         this.damage = damage;
         this.per = per;
+
+        // Áp dụng damage boost
+        ApplyDamageBoost();
 
         if (per >= 0)
         {
             // Thiết lập vận tốc cho đạn
-            rigid.linearVelocity = dir * speed; // Sử dụng velocity thay vì linearVelocity
+            rigid.linearVelocity = dir * speed;
 
             // Xoay đạn theo hướng di chuyển
             // Offset góc phụ thuộc vào hướng mặc định của sprite đạn
             float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90f;
             transform.rotation = Quaternion.Euler(0, 0, angle);
         }
+
+        // Debug log để kiểm tra damage boost
+        Debug.Log($"Bullet initialized with base damage: {baseDamage}, final damage: {damage}, penetration: {per}");
+    }
+
+    private void ApplyDamageBoost()
+    {
+        if (playerControl != null)
+        {
+            float damageMultiplier = playerControl.GetCurrentDamageMultiplier();
+            damage = baseDamage * damageMultiplier;
+            
+            if (damageMultiplier > 1f)
+            {
+                Debug.Log($"Damage boost applied! Base: {baseDamage} -> Boosted: {damage} (x{damageMultiplier})");
+            }
+        }
     }
 
     public void SetDamage(float newDamage)
     {
+        baseDamage = newDamage;
         damage = newDamage;
+        
+        // Áp dụng lại damage boost
+        ApplyDamageBoost();
+        
+        Debug.Log($"Bullet damage updated to: {damage}");
     }
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -60,12 +103,12 @@ public class Bullet : MonoBehaviour
         // Kiểm tra va chạm với Enemy
         if (collision.CompareTag("Enemy"))
         {
-
-            // Hoặc sử dụng component Health nếu enemy có
+            // Sử dụng component Health nếu enemy có
             Health enemyHealth = collision.gameObject.GetComponent<Health>();
             if (enemyHealth != null)
             {
                 enemyHealth.TakeDamage(damage);
+                Debug.Log($"Bullet hit enemy for {damage} damage");
             }
 
             // Giảm số lần xuyên qua

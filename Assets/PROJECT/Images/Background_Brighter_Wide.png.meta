@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Background_Brighter_Wide_0: -1335228231188634238
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
