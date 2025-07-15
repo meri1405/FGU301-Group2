@@ -18,7 +18,8 @@ public class AudioManager : MonoBehaviour
     public AudioClip buttonClickSound;
     public AudioClip enemyDeathSound;
     public AudioClip playerDeathSound;
-    
+    public AudioClip pickupPowerupsSound; // Âm thanh nhặt power-ups
+
     [Header("Volume Controls")]
     [Range(0f, 1f)]
     public float musicVolume = 0.5f;
@@ -125,7 +126,12 @@ public class AudioManager : MonoBehaviour
     {
         PlaySoundEffect(enemyDeathSound);
     }
-    
+
+    public void PlayPickupSound()
+    {
+        PlaySoundEffect(pickupPowerupsSound);
+    }
+
     // Phát âm thanh player chết
     public void PlayPlayerDeathSound()
     {
