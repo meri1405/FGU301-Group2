@@ -35,19 +35,25 @@ public class ShieldController : MonoBehaviour
         }
     }
 
-    public void AbsorbDamage(float damage)
+    public float AbsorbDamageAndReturnLeftover(float damage)
     {
-        if (!isActive) return;
+        if (!isActive) return damage;
 
         currentShieldHealth -= damage;
-        Debug.Log($"🛡️ Shield took damage: {damage}, remaining: {currentShieldHealth}");
+        Debug.Log($"🛡️ Shield took {damage} damage, remaining: {currentShieldHealth}");
 
         if (currentShieldHealth <= 0)
         {
-            Debug.Log("💥 Shield exploded!");
+            float leftover = -currentShieldHealth; // phần damage vượt quá
             Explode();
+            isActive = false;
+            gameObject.SetActive(false);
+            return leftover;
         }
+
+        return 0f; // absorb hết
     }
+
 
     private void Explode()
     {

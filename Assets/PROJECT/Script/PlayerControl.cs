@@ -64,7 +64,10 @@ public class PlayerControl : MonoBehaviour
     {
         if (Keyboard.current.qKey.wasPressedThisFrame && shieldController != null)
         {
-            shieldController.ActivateShield();
+            if (shieldController != null)
+            {
+                Debug.Log("Shield Active? " + shieldController.IsActive());
+            }
         }
         // Nếu đã chết, không cho di chuyển
         if (health != null && health.IsDead())
@@ -209,7 +212,6 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
-    // Phương thức để xử lý khi player bị va chạm
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (!collision.gameObject.CompareTag("Enemy")) return;
@@ -223,23 +225,32 @@ public class PlayerControl : MonoBehaviour
         {
             float damage = enemy.GetDamage();
 
+            // 🛡 Nếu có khiên và khiên đang hoạt động
             if (shieldController != null && shieldController.IsActive())
             {
-                Debug.Log("🛡️ Shield absorbs damage: " + damage);
-                shieldController.AbsorbDamage(damage);
-                return; // Không trừ máu player
+                float leftover = shieldController.AbsorbDamageAndReturnLeftover(damage);
+
+                if (leftover <= 0)
+                {
+                    Debug.Log("✅ Shield absorbed all damage, player takes no damage.");
+                    return; // absorb hết damage
+                }
+
+                damage = leftover; // absorb không hết => trừ phần dư
+                Debug.Log($"⚠️ Shield broken! Leftover damage to player: {leftover}");
             }
 
-            // Nếu không có khiên hoặc khiên đã nổ
+            // Nếu còn damage sau absorb hoặc không có khiên
             PlayHurtSound();
+            health.TakeDamage(damage);
 
-            // Đẩy lùi player
             Vector2 knockbackDir = (transform.position - collision.transform.position).normalized;
             transform.position += (Vector3)knockbackDir * 1f;
 
-            Debug.Log("💥 Player bị trúng sát thương: " + damage);
+            Debug.Log($"💥 Player took damage: {damage}");
         }
     }
+
 
     // Đảm bảo dừng walk sound khi player bị disable/destroy
     void OnDisable()
