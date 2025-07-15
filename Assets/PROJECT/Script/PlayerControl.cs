@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,6 +14,9 @@ public class PlayerControl : MonoBehaviour
     private float currentDamageMultiplier = 1f;
     private Coroutine speedBoostCoroutine;
     private Coroutine powerBoostCoroutine;
+    [SerializeField] private ShieldController shieldController;
+    private float lastDamageTime = 0f;
+    private float damageCooldown = 1f;
 
     private Health health;
     private Animator animator;
@@ -25,6 +28,15 @@ public class PlayerControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        shieldController = GetComponentInChildren<ShieldController>(true);
+        if (shieldController == null)
+        {
+            Debug.LogError("❌ ShieldController vẫn NULL! Kiểm tra cấu trúc hierarchy hoặc script.");
+        }
+        else
+        {
+            Debug.Log("✅ ShieldController FOUND: " + shieldController.name);
+        }
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         health = GetComponent<Health>();
@@ -50,6 +62,10 @@ public class PlayerControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Keyboard.current.qKey.wasPressedThisFrame && shieldController != null)
+        {
+            shieldController.ActivateShield();
+        }
         // Nếu đã chết, không cho di chuyển
         if (health != null && health.IsDead())
         {
@@ -117,6 +133,20 @@ public class PlayerControl : MonoBehaviour
         position.x = position.x + effectiveMoveSpeed * Time.deltaTime * horizontal;
         position.y = position.y + effectiveMoveSpeed * Time.deltaTime * vertical;
         transform.position = position;
+
+        if (Keyboard.current.qKey.wasPressedThisFrame)
+        {
+            Debug.Log(">> Q Key pressed");
+            if (shieldController != null)
+            {
+                Debug.Log(">> ShieldController found");
+                shieldController.ActivateShield();
+            }
+            else
+            {
+                Debug.LogWarning(">> ShieldController is null!");
+            }
+        }
     }
     
     private void HandleWalkingSound(bool isMoving)
@@ -180,38 +210,37 @@ public class PlayerControl : MonoBehaviour
     }
 
     // Phương thức để xử lý khi player bị va chạm
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnCollisionStay2D(Collision2D collision)
     {
-        // Kiểm tra health có null không trước khi sử dụng
-        if (health == null)
+        if (!collision.gameObject.CompareTag("Enemy")) return;
+
+        if (Time.time - lastDamageTime < damageCooldown) return;
+
+        lastDamageTime = Time.time;
+
+        ZombieChase enemy = collision.gameObject.GetComponent<ZombieChase>();
+        if (enemy != null)
         {
-            UnityEngine.Debug.LogError("Health component is missing on Player!");
-            return;
-        }
-        
-        if (collision.gameObject.CompareTag("Enemy"))
-        {
-            // Lấy component Enemy từ object va chạm
-            ZombieChase enemy = collision.gameObject.GetComponent<ZombieChase>();
-            if (enemy != null)
+            float damage = enemy.GetDamage();
+
+            if (shieldController != null && shieldController.IsActive())
             {
-                try
-                {
-                    // Phát âm thanh bị thương
-                    PlayHurtSound();
-           
-                    // Tạo hiệu ứng bị đẩy lùi (knockback)
-                    Vector2 knockbackDir = (transform.position - collision.transform.position).normalized;
-                    transform.position += (Vector3)knockbackDir * 1f;
-                }
-                catch (System.Exception e)
-                {
-                    UnityEngine.Debug.LogError("Error when processing collision with enemy: " + e.Message);
-                }
+                Debug.Log("🛡️ Shield absorbs damage: " + damage);
+                shieldController.AbsorbDamage(damage);
+                return; // Không trừ máu player
             }
+
+            // Nếu không có khiên hoặc khiên đã nổ
+            PlayHurtSound();
+
+            // Đẩy lùi player
+            Vector2 knockbackDir = (transform.position - collision.transform.position).normalized;
+            transform.position += (Vector3)knockbackDir * 1f;
+
+            Debug.Log("💥 Player bị trúng sát thương: " + damage);
         }
     }
-    
+
     // Đảm bảo dừng walk sound khi player bị disable/destroy
     void OnDisable()
     {
