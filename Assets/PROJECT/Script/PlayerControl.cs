@@ -1,56 +1,57 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerControl : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed = 1.0f;
-    [SerializeField] private Transform weaponTransform; // Tham chiếu tới vũ khí
+    [Header("Movement Settings")]
+    [SerializeField] private float moveSpeed = 5f;
 
-    // Boost effects
+    [Header("Combat Settings")]
+    [SerializeField] private float baseDamage = 10f;
+    [SerializeField] private float damageCooldown = 1f;
+
+    [Header("References")]
+    [SerializeField] private Transform weaponTransform;
+
+    
+
     private float currentSpeedMultiplier = 1f;
     private float currentDamageMultiplier = 1f;
+
     private Coroutine speedBoostCoroutine;
     private Coroutine powerBoostCoroutine;
-    [SerializeField] private ShieldController shieldController;
-    private float lastDamageTime = 0f;
-    private float damageCooldown = 1f;
 
+    private float lastDamageTime = 0f;
+    public GameObject explodingShieldPrefab;
     private Health health;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
-    private Vector2 movementVector;
-    private bool isFacingRight = true; // Biến để theo dõi hướng nhân vật
-    private bool wasMoving = false; // Để theo dõi trạng thái di chuyển
+    public ExplosionShield explosionShield;
 
-    // Start is called before the first frame update
-    void Start()
+    private Vector2 movementVector;
+    private bool isFacingRight = true;
+    private bool wasMoving = false;
+
+    private void Start()
     {
-        shieldController = GetComponentInChildren<ShieldController>(true);
-        if (shieldController == null)
-        {
-            Debug.LogError("❌ ShieldController vẫn NULL! Kiểm tra cấu trúc hierarchy hoặc script.");
-        }
-        else
-        {
-            Debug.Log("✅ ShieldController FOUND: " + shieldController.name);
-        }
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         health = GetComponent<Health>();
 
         if (animator == null)
-            UnityEngine.Debug.LogError("Animator component not found on player");
-            
+            Debug.LogError("Animator not found on player");
+
+        if (spriteRenderer == null)
+            Debug.LogError("SpriteRenderer not found on player");
+
         if (health == null)
         {
-            UnityEngine.Debug.LogError("Health component not found on player");
-            health = gameObject.AddComponent<Health>(); // Tự động thêm Health nếu chưa có
+            Debug.LogWarning("Health component missing. Adding default Health.");
+            health = gameObject.AddComponent<Health>();
         }
-            
-        // Nếu chưa gán vũ khí trong Inspector, tìm kiếm nó theo tên
+
         if (weaponTransform == null)
         {
             Transform weaponChild = transform.Find("Weapon 3");
@@ -59,163 +60,129 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        if (Keyboard.current.qKey.wasPressedThisFrame && shieldController != null)
-        {
-            if (shieldController != null)
-            {
-                Debug.Log("Shield Active? " + shieldController.IsActive());
-            }
-        }
-        // Nếu đã chết, không cho di chuyển
         if (health != null && health.IsDead())
         {
-            // Dừng walk sound nếu player chết
             if (AudioManager.Instance != null)
-            {
                 AudioManager.Instance.StopWalkSound();
-            }
             return;
         }
-
-        float horizontal = 0.0f;
-        if (Keyboard.current.leftArrowKey.isPressed || Keyboard.current.aKey.isPressed)
+        if (Keyboard.current.qKey.wasPressedThisFrame)
         {
-            horizontal = -0.5f;
-            if (spriteRenderer != null)
-                spriteRenderer.flipX = true;
-                
-            if (isFacingRight)
-                FlipWeapon();
-                
+            ActivateExplodingShield();
+        }
+
+
+        HandleInput();
+        HandleMovement();
+    }
+    private void ActivateExplodingShield()
+    {
+        if (explodingShieldPrefab != null)
+        {
+            Vector3 shieldPos = transform.position;
+            GameObject shield = Instantiate(explodingShieldPrefab, shieldPos, Quaternion.identity);
+            shield.transform.SetParent(transform); // bám theo player
+            Debug.Log("🛡️ Shield activated");
+        }
+    }
+
+    private void HandleInput()
+    {
+        float horizontal = 0f;
+        float vertical = 0f;
+
+        if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)
+            horizontal = -1f;
+        if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed)
+            horizontal = 1f;
+        if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed)
+            vertical = 1f;
+        if (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed)
+            vertical = -1f;
+
+        movementVector = new Vector2(horizontal, vertical).normalized;
+
+        if (horizontal < 0 && isFacingRight)
+        {
+            spriteRenderer.flipX = true;
+            FlipWeapon();
             isFacingRight = false;
         }
-        else if (Keyboard.current.rightArrowKey.isPressed || Keyboard.current.dKey.isPressed)
+        else if (horizontal > 0 && !isFacingRight)
         {
-            horizontal = 0.5f;
-            if (spriteRenderer != null)
-                spriteRenderer.flipX = false;
-                
-            if (!isFacingRight)
-                FlipWeapon();
-                
+            spriteRenderer.flipX = false;
+            FlipWeapon();
             isFacingRight = true;
         }
-
-        float vertical = 0.0f;
-        if (Keyboard.current.upArrowKey.isPressed || Keyboard.current.wKey.isPressed)
-        {
-            vertical = 0.5f;
-        }
-        else if (Keyboard.current.downArrowKey.isPressed || Keyboard.current.sKey.isPressed)
-        {
-            vertical = -0.5f;
-        }
-
-        // Tính toán vector di chuyển
-        movementVector = new Vector2(horizontal, vertical);
-        
-        // Tính toán tốc độ thực tế (magnitude của vector di chuyển)
+       
+    }
+    
+    private void HandleMovement()
+    {
         float currentSpeed = movementVector.magnitude;
         bool isMoving = currentSpeed > 0;
 
-        // Cập nhật tham số speed trong Animator
         if (animator != null)
-        {
             animator.SetFloat("Speed", currentSpeed);
-        }
-        
-        // Xử lý âm thanh bước chân
+
         HandleWalkingSound(isMoving);
 
-        // Di chuyển nhân vật với speed boost
-        float effectiveMoveSpeed = moveSpeed * currentSpeedMultiplier;
-        Vector2 position = transform.position;
-        position.x = position.x + effectiveMoveSpeed * Time.deltaTime * horizontal;
-        position.y = position.y + effectiveMoveSpeed * Time.deltaTime * vertical;
-        transform.position = position;
-
-        if (Keyboard.current.qKey.wasPressedThisFrame)
-        {
-            Debug.Log(">> Q Key pressed");
-            if (shieldController != null)
-            {
-                Debug.Log(">> ShieldController found");
-                shieldController.ActivateShield();
-            }
-            else
-            {
-                Debug.LogWarning(">> ShieldController is null!");
-            }
-        }
+        float effectiveSpeed = moveSpeed * currentSpeedMultiplier;
+        transform.position += (Vector3)(movementVector * effectiveSpeed * Time.deltaTime);
     }
-    
+
     private void HandleWalkingSound(bool isMoving)
     {
         if (AudioManager.Instance != null)
         {
             if (isMoving && !wasMoving)
-            {
-                // Bắt đầu di chuyển - phát walk sound liên tục
                 AudioManager.Instance.StartWalkSound();
-            }
             else if (!isMoving && wasMoving)
-            {
-                // Dừng di chuyển - dừng walk sound ngay lập tức
                 AudioManager.Instance.StopWalkSound();
-            }
         }
-        
+
         wasMoving = isMoving;
     }
-    
-    // Hàm để lật vũ khí
+
     private void FlipWeapon()
     {
         if (weaponTransform != null)
         {
-            // Đảo ngược hướng vũ khí bằng cách đảo ngược scale.x
-            Vector3 localScale = weaponTransform.localScale;
-            localScale.x *= -1;
-            weaponTransform.localScale = localScale;
-            
-            // Điều chỉnh vị trí của vũ khí để giữ nó ở đúng vị trí tương đối 
-            Vector3 localPos = weaponTransform.localPosition;
-            localPos.x *= -1;
-            weaponTransform.localPosition = localPos;
+            Vector3 scale = weaponTransform.localScale;
+            scale.x *= -1;
+            weaponTransform.localScale = scale;
+
+            Vector3 pos = weaponTransform.localPosition;
+            pos.x *= -1;
+            weaponTransform.localPosition = pos;
         }
     }
-    
-    // Method để destroy weapon khi player chết
+
     public void DestroyWeapon()
     {
         if (weaponTransform != null)
         {
-            UnityEngine.Debug.Log("Destroying player weapon: " + weaponTransform.name);
+            Debug.Log("Destroying player weapon: " + weaponTransform.name);
             Destroy(weaponTransform.gameObject);
             weaponTransform = null;
         }
         else
         {
-            UnityEngine.Debug.Log("No weapon to destroy - weaponTransform is null");
+            Debug.Log("No weapon to destroy.");
         }
     }
-    
-    // Method để phát âm thanh khi bị thương (có thể gọi từ Health script)
+
     public void PlayHurtSound()
     {
         if (AudioManager.Instance != null)
-        {
             AudioManager.Instance.PlayHurtSound();
-        }
     }
 
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (!collision.gameObject.CompareTag("Enemy")) return;
-
         if (Time.time - lastDamageTime < damageCooldown) return;
 
         lastDamageTime = Time.time;
@@ -223,128 +190,66 @@ public class PlayerControl : MonoBehaviour
         ZombieChase enemy = collision.gameObject.GetComponent<ZombieChase>();
         if (enemy != null)
         {
-            float damage = enemy.GetDamage();
+            float finalDamage = baseDamage;
 
-            // 🛡 Nếu có khiên và khiên đang hoạt động
-            if (shieldController != null && shieldController.IsActive())
-            {
-                float leftover = shieldController.AbsorbDamageAndReturnLeftover(damage);
-
-                if (leftover <= 0)
-                {
-                    Debug.Log("✅ Shield absorbed all damage, player takes no damage.");
-                    return; // absorb hết damage
-                }
-
-                damage = leftover; // absorb không hết => trừ phần dư
-                Debug.Log($"⚠️ Shield broken! Leftover damage to player: {leftover}");
-            }
-
-            // Nếu còn damage sau absorb hoặc không có khiên
             PlayHurtSound();
-            health.TakeDamage(damage);
+            health.TakeDamage(finalDamage);
 
             Vector2 knockbackDir = (transform.position - collision.transform.position).normalized;
             transform.position += (Vector3)knockbackDir * 1f;
 
-            Debug.Log($"💥 Player took damage: {damage}");
+            Debug.Log($"💥 Player took damage: {finalDamage}");
         }
     }
 
-
-    // Đảm bảo dừng walk sound khi player bị disable/destroy
-    void OnDisable()
+    private void OnDisable()
     {
         if (AudioManager.Instance != null)
-        {
             AudioManager.Instance.StopWalkSound();
-        }
     }
 
-    // Methods for boost effects
+    // BOOST ----------------------------------------
+
     public void ApplySpeedBoost(float multiplier, float duration)
     {
-        // Dừng coroutine hiện tại nếu có
         if (speedBoostCoroutine != null)
-        {
             StopCoroutine(speedBoostCoroutine);
-        }
 
-        // Bắt đầu speed boost mới
         speedBoostCoroutine = StartCoroutine(SpeedBoostCoroutine(multiplier, duration));
     }
 
     public void ApplyPowerBoost(float multiplier, float duration)
     {
-        // Dừng coroutine hiện tại nếu có
         if (powerBoostCoroutine != null)
-        {
             StopCoroutine(powerBoostCoroutine);
-        }
 
-        // Bắt đầu power boost mới
         powerBoostCoroutine = StartCoroutine(PowerBoostCoroutine(multiplier, duration));
     }
 
     private IEnumerator SpeedBoostCoroutine(float multiplier, float duration)
     {
         currentSpeedMultiplier = multiplier;
-        UnityEngine.Debug.Log($"Speed boost activated: {multiplier}x for {duration} seconds");
-        
-        // Có thể thêm hiệu ứng visual ở đây (đổi màu player, particle effect, etc.)
-        if (spriteRenderer != null)
-        {
-            Color originalColor = spriteRenderer.color;
-            spriteRenderer.color = Color.cyan; // Màu xanh để chỉ speed boost
-            
-            yield return new WaitForSeconds(duration);
-            
-            spriteRenderer.color = originalColor;
-        }
-        else
-        {
-            yield return new WaitForSeconds(duration);
-        }
+        Debug.Log($"⚡ Speed boost: {multiplier}x for {duration}s");
+
+        yield return new WaitForSeconds(duration);
 
         currentSpeedMultiplier = 1f;
         speedBoostCoroutine = null;
-        UnityEngine.Debug.Log("Speed boost ended");
+        Debug.Log("⚡ Speed boost ended");
     }
 
     private IEnumerator PowerBoostCoroutine(float multiplier, float duration)
     {
         currentDamageMultiplier = multiplier;
-        UnityEngine.Debug.Log($"Power boost activated: {multiplier}x for {duration} seconds");
-        
-        // Có thể thêm hiệu ứng visual ở đây
-        if (spriteRenderer != null)
-        {
-            Color originalColor = spriteRenderer.color;
-            spriteRenderer.color = Color.red; // Màu đỏ để chỉ power boost
-            
-            yield return new WaitForSeconds(duration);
-            
-            spriteRenderer.color = originalColor;
-        }
-        else
-        {
-            yield return new WaitForSeconds(duration);
-        }
+        Debug.Log($"🔥 Power boost: {multiplier}x for {duration}s");
+
+        yield return new WaitForSeconds(duration);
 
         currentDamageMultiplier = 1f;
         powerBoostCoroutine = null;
-        UnityEngine.Debug.Log("Power boost ended");
+        Debug.Log("🔥 Power boost ended");
     }
 
-    // Getter cho damage multiplier để weapon có thể sử dụng
-    public float GetCurrentDamageMultiplier()
-    {
-        return currentDamageMultiplier;
-    }
-
-    // Getter cho speed multiplier
-    public float GetCurrentSpeedMultiplier()
-    {
-        return currentSpeedMultiplier;
-    }
+    public float GetCurrentDamageMultiplier() => currentDamageMultiplier;
+    public float GetCurrentSpeedMultiplier() => currentSpeedMultiplier;
 }
