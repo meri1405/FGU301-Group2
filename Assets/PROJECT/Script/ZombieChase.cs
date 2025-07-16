@@ -6,7 +6,7 @@ public class ZombieChase : MonoBehaviour
     public float speed = 3f;
     public float damage;
     public float health = 30.0f;
-
+    
     private SpriteRenderer spriteRenderer;
     private Animator animator;
     private bool isDead = false;
