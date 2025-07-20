@@ -13,6 +13,8 @@ public class UIManager : MonoBehaviour
     public GameObject healthBar;
     public GameObject killTextTMP;
 
+    private PauseMenuManager pauseMenuManager;
+
     void Start()
     {
         if (startPanel == null)
@@ -34,6 +36,9 @@ public class UIManager : MonoBehaviour
             Debug.LogError("healthBar or killTextTMP is not assigned!");
         }
 
+        // Tìm PauseMenuManager trong scene
+        pauseMenuManager = FindObjectOfType<PauseMenuManager>();
+
         Time.timeScale = 0; // Pause the game at the start
     }
 
@@ -52,6 +57,12 @@ public class UIManager : MonoBehaviour
 
     public void endGame()
     {
+        // Đảm bảo pause menu bị ẩn khi game over
+        if (pauseMenuManager != null)
+        {
+            pauseMenuManager.ForceResume(); // Tắt pause menu nếu đang mở
+        }
+
         EndPanel.SetActive(true);
         Time.timeScale = 0f; // Pause the game when ending
     }
@@ -74,6 +85,8 @@ public class UIManager : MonoBehaviour
             AudioManager.Instance.PlayButtonSound();
         }
 
+        Time.timeScale = 1f; // Reset time scale trước khi quit
+
 #if UNITY_EDITOR
         // Nếu đang chạy trong Unity Editor → dừng Play Mode
         EditorApplication.isPlaying = false;
@@ -85,6 +98,19 @@ public class UIManager : MonoBehaviour
 
     void Update()
     {
+        // Kiểm tra nếu game đang trong start panel hoặc end panel thì không cho pause
+        bool canPause = !startPanel.activeSelf && !EndPanel.activeSelf;
+        
+        if (canPause && pauseMenuManager != null && Input.GetKeyDown(KeyCode.Escape))
+        {
+            // Để PauseMenuManager xử lý logic pause
+            // (PauseMenuManager đã có logic xử lý ESC trong Update của nó)
+        }
+    }
 
+    // Method để check xem có thể pause không (gọi từ PauseMenuManager nếu cần)
+    public bool CanPause()
+    {
+        return !startPanel.activeSelf && !EndPanel.activeSelf;
     }
 }

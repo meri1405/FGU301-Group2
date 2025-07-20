@@ -48,7 +48,7 @@ public class SpeedBoostPickup : MonoBehaviour
                 // Phát âm thanh pickup nếu có
                 if (AudioManager.Instance != null)
                 {
-                     AudioManager.Instance.PlayPickupSound();
+                    AudioManager.Instance.PlayPickupSound();
                 }
 
                 Debug.Log($"Player nhặt Speed Boost! Tốc độ x{speedMultiplier} trong {boostDuration} giây");
