@@ -20,6 +20,10 @@ public class KillCounterTMP : MonoBehaviour
     {
         killCount++;
         UpdateKillText();
+        if (ScoreManager.instance != null)
+        {
+            ScoreManager.instance.AddScore(1);
+        }
     }
 
     private void UpdateKillText()
