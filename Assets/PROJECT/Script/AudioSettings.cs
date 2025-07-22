@@ -47,7 +47,6 @@ public class AudioSettings : MonoBehaviour
     {
         if (AudioManager.Instance != null)
         {
-            // Load v?i default values n?u không có settings ???c l?u
             float musicVolume = PlayerPrefs.GetFloat(MUSIC_VOLUME_KEY, 0.5f);
             float soundVolume = PlayerPrefs.GetFloat(SOUND_VOLUME_KEY, 1.0f);
 
