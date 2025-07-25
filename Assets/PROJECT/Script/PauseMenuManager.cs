@@ -18,36 +18,36 @@ public class PauseMenuManager : MonoBehaviour
     [SerializeField] private Button continueButton;
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button quitGameButton;
-    [SerializeField] private Button backToMainButton; // Nút quay l?i t? settings panel
+    [SerializeField] private Button backToMainButton; 
     
     private bool isPaused = false;
-    private bool wasGamePausedBefore = false; // ?? ki?m tra game ?ã b? pause tr??c ?ó ch?a
+    private bool wasGamePausedBefore = false; 
     private UIManager uiManager;
     private AudioSettings audioSettings;
 
     void Start()
     {
-        // Tìm UIManager và AudioSettings
+        
         uiManager = FindObjectOfType<UIManager>();
         audioSettings = FindObjectOfType<AudioSettings>();
 
-        // ??m b?o pause menu b? ?n khi b?t ??u
+        
         if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
         if (settingsPanel != null) settingsPanel.SetActive(false);
 
-        // Setup sliders v?i giá tr? hi?n t?i t? AudioManager
+        
         SetupVolumeSliders();
         
-        // Setup button listeners
+        
         SetupButtonListeners();
     }
 
     void Update()
     {
-        // Ki?m tra n?u ng??i ch?i ?n ESC và có th? pause
+       
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            // Ki?m tra xem có th? pause không
+            
             bool canPause = true;
             if (uiManager != null)
             {
@@ -72,7 +72,7 @@ public class PauseMenuManager : MonoBehaviour
     {
         if (AudioManager.Instance != null)
         {
-            // Set giá tr? ban ??u cho sliders
+            
             if (musicVolumeSlider != null)
             {
                 musicVolumeSlider.value = AudioManager.Instance.musicVolume;
@@ -104,7 +104,7 @@ public class PauseMenuManager : MonoBehaviour
 
     public void PauseGame()
     {
-        // L?u tr?ng thái time scale tr??c ?ó
+        
         wasGamePausedBefore = (Time.timeScale == 0f);
         
         isPaused = true;
@@ -113,11 +113,11 @@ public class PauseMenuManager : MonoBehaviour
         if (pauseMenuPanel != null)
             pauseMenuPanel.SetActive(true);
             
-        // ??m b?o settings panel b? ?n
+       
         if (settingsPanel != null)
             settingsPanel.SetActive(false);
 
-        // Hi?n th? cursor
+        
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
@@ -133,7 +133,7 @@ public class PauseMenuManager : MonoBehaviour
 
         isPaused = false;
         
-        // Ch? resume n?u game không b? pause t? tr??c
+      
         if (!wasGamePausedBefore)
         {
             Time.timeScale = 1f;
@@ -161,7 +161,7 @@ public class PauseMenuManager : MonoBehaviour
         if (settingsPanel != null)
             settingsPanel.SetActive(true);
 
-        // C?p nh?t l?i slider values khi m? settings
+       
         UpdateSliderValues();
     }
 
@@ -172,7 +172,7 @@ public class PauseMenuManager : MonoBehaviour
             AudioManager.Instance.PlayButtonSound();
         }
 
-        // L?u settings khi quay l?i
+        
         if (audioSettings != null)
         {
             audioSettings.SaveAudioSettings();
@@ -192,13 +192,13 @@ public class PauseMenuManager : MonoBehaviour
             AudioManager.Instance.PlayButtonSound();
         }
 
-        // L?u settings tr??c khi quit
+       
         if (audioSettings != null)
         {
             audioSettings.SaveAudioSettings();
         }
 
-        Time.timeScale = 1f; // Reset time scale tr??c khi quit
+        Time.timeScale = 1f; 
 
 #if UNITY_EDITOR
         EditorApplication.isPlaying = false;
@@ -219,7 +219,7 @@ public class PauseMenuManager : MonoBehaviour
         }
     }
 
-    // Callback functions cho sliders
+    
     private void OnMusicVolumeChanged(float value)
     {
         if (AudioManager.Instance != null)
@@ -236,13 +236,13 @@ public class PauseMenuManager : MonoBehaviour
         }
     }
 
-    // Public getter ?? các script khác có th? ki?m tra tr?ng thái pause
+    
     public bool IsPaused()
     {
         return isPaused;
     }
 
-    // Method ?? force pause t? script khác
+   
     public void ForcePause()
     {
         if (!isPaused)
@@ -251,7 +251,7 @@ public class PauseMenuManager : MonoBehaviour
         }
     }
 
-    // Method ?? force resume t? script khác
+    
     public void ForceResume()
     {
         if (isPaused)

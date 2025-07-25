@@ -46,7 +46,7 @@ public class EnemySpawner : MonoBehaviour
             return Random.value < 0.5f ? normalZombiePrefab : tankZombiePrefab;
 
         
-        // Round 5 trở lên
+        
         float rand = Random.value;
         if (rand < 0.33f) return normalZombiePrefab;
         else if (rand < 0.66f) return fastZombiePrefab;

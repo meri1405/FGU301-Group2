@@ -4,8 +4,8 @@ public class Weapon : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public GameObject bullet;
-    public Transform firePoint; // Vị trí bắn viên đạn
-    public float fireRate = 0.5f; // Tốc độ bắn (số lần bắn mỗi giây)
+    public Transform firePoint; 
+    public float fireRate = 0.5f;
     public float bulletForce;
 
     private float timeBtwFire;
@@ -49,7 +49,7 @@ public class Weapon : MonoBehaviour
         Rigidbody2D rb = bulletInstance.GetComponent<Rigidbody2D>();
         rb.AddForce(transform.right * bulletForce,ForceMode2D.Impulse);
         
-        // Phát âm thanh bắn súng
+       
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.PlayShootSound();

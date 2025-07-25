@@ -14,7 +14,7 @@ public class ExplosionShield : MonoBehaviour
     private void Start()
     {
         currentHealth = shieldHealth;
-        Invoke(nameof(Explode), shieldDuration); // tự nổ sau thời gian
+        Invoke(nameof(Explode), shieldDuration); 
     }
 
     public void TakeDamage(float damage)
@@ -28,7 +28,7 @@ public class ExplosionShield : MonoBehaviour
 
     private void Explode()
     {
-        // Gây sát thương
+        
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, explosionRadius, enemyLayer);
         foreach (var hit in hits)
         {
@@ -43,21 +43,21 @@ public class ExplosionShield : MonoBehaviour
             }
         }
 
-        // Hiệu ứng nổ
+        
         if (explosionEffect != null)
         {
             Instantiate(explosionEffect, transform.position, Quaternion.identity);
         }
 
-        Destroy(gameObject); // huỷ khiên sau khi nổ
+        Destroy(gameObject); 
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Enemy"))
         {
-            // Giảm máu khi bị va chạm với enemy
-            TakeDamage(10f); // mỗi va chạm trừ 10 máu (tùy chỉnh)
+            
+            TakeDamage(10f); 
         }
     }
 

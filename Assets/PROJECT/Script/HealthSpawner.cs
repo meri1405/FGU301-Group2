@@ -23,7 +23,7 @@ public class HealthSpawner : MonoBehaviour
         {
             yield return new WaitForSeconds(spawnInterval);
 
-            // Đếm số lượng cục máu đang tồn tại
+            
             spawnedHealthPickups.RemoveAll(item => item == null);
 
             if (spawnedHealthPickups.Count >= maxHealthPickups)

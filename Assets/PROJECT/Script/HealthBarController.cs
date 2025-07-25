@@ -2,9 +2,9 @@
 using UnityEngine.UI;
 public class HealthBarController : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    public Health targetHealth;         // Kéo vào trong Inspector
-    public Slider healthSlider;         // Kéo Slider vào đây
+    
+    public Health targetHealth;         
+    public Slider healthSlider;         
 
     void start()
     {

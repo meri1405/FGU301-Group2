@@ -18,7 +18,7 @@ public class RoundManager : MonoBehaviour
     public TMP_Text roundText;
     public TMP_Text timerText;
     public TMP_Text roundTransitionText;
-    public GameObject winScreen; // Panel hiện ra khi thắng
+    public GameObject winScreen; 
 
     [Header("Transition Settings")]
     public float transitionDisplayTime = 2f;
@@ -42,13 +42,13 @@ public class RoundManager : MonoBehaviour
 
             spawner.ClearAllZombies();
 
-            // 🎯 Hiệu ứng chuyển round
+            
             yield return StartCoroutine(ShowRoundTransition(currentRound));
 
-            // Spawn zombie cho round
+            
             spawner.SpawnZombiesForRound(currentRound, zombiesPerRound);
 
-            // Đếm ngược thời gian
+            
             while (timeLeft > 0)
             {
                 timeLeft -= Time.deltaTime;
@@ -56,11 +56,10 @@ public class RoundManager : MonoBehaviour
                 yield return null;
             }
 
-            // ✅ Kiểm tra nếu đã hết round 3 thì win luôn
+           
             if (currentRound == 3)
             {
-                yield return new WaitForSeconds(1f); // Nghỉ 1 chút
-                //yield return StartCoroutine(ShowWinTransition()); // Hiệu ứng "YOU WIN!"
+                yield return new WaitForSeconds(1f); 
                 WinGame();
                 yield break;
             }
@@ -68,7 +67,7 @@ public class RoundManager : MonoBehaviour
             yield return new WaitForSeconds(timeBetweenRounds);
         }
 
-        WinGame(); // nếu đi hết maxRounds mới thắng
+        WinGame();
     }
 
 
@@ -88,7 +87,7 @@ public class RoundManager : MonoBehaviour
         roundTransitionText.gameObject.SetActive(false);
 
         spawner.ClearAllZombies();
-        endPanel.SetActive(true); // ✅ Hiện UI Win
+        endPanel.SetActive(true); 
         Time.timeScale = 0f;
     }
 
@@ -98,15 +97,5 @@ public class RoundManager : MonoBehaviour
         int seconds = Mathf.FloorToInt(t % 60f);
         return string.Format("{0:00}:{1:00}", minutes, seconds);
     }
-    //IEnumerator ShowWinTransition()
-    //{
-    //    roundTransitionText.text = " YOU WIN!";
-    //    roundTransitionText.fontSize = 80;
-    //    roundTransitionText.color = Color.yellow;
-    //    roundTransitionText.gameObject.SetActive(true);
-
-    //    yield return new WaitForSeconds(2f);
-
-    //    roundTransitionText.gameObject.SetActive(false);
-    //}
+    
 }

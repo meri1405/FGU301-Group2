@@ -4,7 +4,7 @@ public class ScoreManager : MonoBehaviour
 {
     public static ScoreManager instance;
 
-    public ScoreData scoreData; // Kéo ScriptableObject vào đây trong Inspector
+    public ScoreData scoreData; 
     private const string scoreKey = "PlayerScore";
 
     void Awake()
@@ -13,7 +13,7 @@ public class ScoreManager : MonoBehaviour
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
-            LoadScore(); // Khôi phục khi khởi động
+            LoadScore(); 
         }
         else
         {

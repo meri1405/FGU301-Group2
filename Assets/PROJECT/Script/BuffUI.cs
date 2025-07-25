@@ -14,10 +14,10 @@ public class BuffUI : MonoBehaviour
 
     void Start()
     {
-        // Tìm PlayerControl trong scene
+        
         playerControl = FindObjectOfType<PlayerControl>();
         
-        // ?n các icon ban ??u
+        
         if (speedBuffIcon != null) speedBuffIcon.SetActive(false);
         if (powerBuffIcon != null) powerBuffIcon.SetActive(false);
     }
@@ -26,10 +26,10 @@ public class BuffUI : MonoBehaviour
     {
         if (playerControl == null) return;
 
-        // C?p nh?t Speed Buff UI
+       
         UpdateSpeedBuffUI();
         
-        // C?p nh?t Power Buff UI  
+        
         UpdatePowerBuffUI();
     }
 
@@ -46,7 +46,7 @@ public class BuffUI : MonoBehaviour
         {
             if (hasSpeedBuff)
             {
-                // Hi?n th? multiplier và có th? thêm timer n?u c?n
+                
                 speedBuffTimer.text = $"x{playerControl.GetCurrentSpeedMultiplier():F1}";
             }
             speedBuffTimer.gameObject.SetActive(hasSpeedBuff);
@@ -66,7 +66,7 @@ public class BuffUI : MonoBehaviour
         {
             if (hasPowerBuff)
             {
-                // Hi?n th? multiplier và có th? thêm timer n?u c?n
+                
                 powerBuffTimer.text = $"x{playerControl.GetCurrentDamageMultiplier():F1}";
             }
             powerBuffTimer.gameObject.SetActive(hasPowerBuff);

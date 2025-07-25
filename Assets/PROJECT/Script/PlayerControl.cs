@@ -83,7 +83,7 @@ public class PlayerControl : MonoBehaviour
         {
             Vector3 shieldPos = transform.position;
             GameObject shield = Instantiate(explodingShieldPrefab, shieldPos, Quaternion.identity);
-            shield.transform.SetParent(transform); // bám theo player
+            shield.transform.SetParent(transform); 
             Debug.Log("🛡️ Shield activated");
         }
     }
@@ -208,7 +208,7 @@ public class PlayerControl : MonoBehaviour
             AudioManager.Instance.StopWalkSound();
     }
 
-    // BOOST ----------------------------------------
+   
 
     public void ApplySpeedBoost(float multiplier, float duration)
     {

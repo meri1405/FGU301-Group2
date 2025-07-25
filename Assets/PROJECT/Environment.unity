@@ -36364,7 +36364,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawner: {fileID: 1649272803}
-  roundDuration: 90
+  roundDuration: 40
   zombiesPerRound: 200
   timeBetweenRounds: 3
   maxRounds: 5

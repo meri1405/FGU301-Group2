@@ -37,7 +37,7 @@ public class Health : MonoBehaviour
 
         StartCoroutine(FlashDamage());
 
-        // Phát âm thanh bị thương nếu là player (đơn giản)
+      
         if (gameObject.CompareTag("Player"))
         {
             if (AudioManager.Instance != null)
@@ -53,7 +53,7 @@ public class Health : MonoBehaviour
         }
     }
 
-    // Phương thức tăng máu (được gọi từ HealthPickup)
+    
     public void AddHealth(float amount)
     {
         if (isDead)
@@ -63,29 +63,27 @@ public class Health : MonoBehaviour
         }
 
         float oldHealth = currentHealth;
-        // Tăng máu nhưng không vượt quá giới hạn
+       
         currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
 
         float actualHealing = currentHealth - oldHealth;
 
         Debug.Log($"{gameObject.name} healed {actualHealing} HP. Current health: {currentHealth}/{maxHealth}");
 
-        // Phát âm thanh hồi máu (đơn giản)
+       
         if (actualHealing > 0 && AudioManager.Instance != null)
         {
             AudioManager.Instance.PlayHealSound();
         }
 
-        // Cập nhật UI nếu có (có thể thêm sau)
+        
         UpdateHealthUI();
     }
 
-    // Phương thức cập nhật UI (có thể mở rộng sau)
+    
     private void UpdateHealthUI()
     {
-        // Tìm và cập nhật UI health bar nếu có
-        // Có thể gọi event hoặc tìm UIManager để cập nhật
-        // Tạm thời để trống, có thể mở rộng sau
+        
     }
 
     private IEnumerator FlashDamage()
@@ -100,7 +98,7 @@ public class Health : MonoBehaviour
         Debug.Log($"{gameObject.name} DIED");
         isDead = true;
 
-        // Phát âm thanh chết (đơn giản)
+        
         if (AudioManager.Instance != null)
         {
             if (gameObject.CompareTag("Player"))
@@ -113,17 +111,17 @@ public class Health : MonoBehaviour
             }
         }
 
-        // Xử lý riêng cho Player khi chết
+       
         if (gameObject.CompareTag("Player"))
         {
-            // Destroy weapon của player
+            
             PlayerControl playerControl = GetComponent<PlayerControl>();
             if (playerControl != null)
             {
                 playerControl.DestroyWeapon();
             }
             
-            // Dừng walk sound
+            
             if (AudioManager.Instance != null)
             {
                 AudioManager.Instance.StopWalkSound();
@@ -152,7 +150,7 @@ public class Health : MonoBehaviour
         }
         else
         {
-            //  Thêm xử lý tăng kill
+            
             if (gameObject.CompareTag("Enemy"))
             {
                 Debug.Log("Enemy died. Kill +1");
@@ -168,7 +166,7 @@ public class Health : MonoBehaviour
         yield return new WaitForSeconds(deathAnimationDuration);
         Debug.Log("Game Over!");
 
-        // Gọi UIManager để hiện EndPanel
+        
         UIManager ui = FindObjectOfType<UIManager>();
         if (ui != null)
         {

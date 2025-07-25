@@ -34,12 +34,12 @@ public class ItemSpawner : MonoBehaviour
         {
             yield return new WaitForSeconds(spawnInterval);
 
-            // Clean null (đã bị nhặt/hủy)
+            
             healthItems.RemoveAll(item => item == null);
             speedItems.RemoveAll(item => item == null);
             powerItems.RemoveAll(item => item == null);
 
-            // Spawn nếu chưa đạt max
+            
             if (healthItems.Count < maxHealth)
                 SpawnItem(healthPickupPrefab, healthItems);
 

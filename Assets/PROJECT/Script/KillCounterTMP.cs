@@ -1,9 +1,9 @@
 using UnityEngine;
-using TMPro; // dùng TextMeshPro
+using TMPro; 
 
 public class KillCounterTMP : MonoBehaviour
 {
-    public TMP_Text killText;  // Kéo KillTextTMP vào đây
+    public TMP_Text killText;  
     private int killCount = 0;
 
     public static KillCounterTMP Instance;

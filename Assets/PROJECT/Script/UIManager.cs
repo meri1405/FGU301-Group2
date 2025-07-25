@@ -36,10 +36,10 @@ public class UIManager : MonoBehaviour
             Debug.LogError("healthBar or killTextTMP is not assigned!");
         }
 
-        // Tìm PauseMenuManager trong scene
+        
         pauseMenuManager = FindObjectOfType<PauseMenuManager>();
 
-        Time.timeScale = 0; // Pause the game at the start
+        Time.timeScale = 0;
     }
 
     public void startGame()
@@ -52,19 +52,19 @@ public class UIManager : MonoBehaviour
         startPanel.SetActive(false);
         if (healthBar != null) healthBar.SetActive(true);
         if (killTextTMP != null) killTextTMP.SetActive(true);
-        Time.timeScale = 1f; // Resume the game
+        Time.timeScale = 1f;
     }
 
     public void endGame()
     {
-        // Đảm bảo pause menu bị ẩn khi game over
+        
         if (pauseMenuManager != null)
         {
-            pauseMenuManager.ForceResume(); // Tắt pause menu nếu đang mở
+            pauseMenuManager.ForceResume();
         }
 
         EndPanel.SetActive(true);
-        Time.timeScale = 0f; // Pause the game when ending
+        Time.timeScale = 0f;
     }
 
     public void restartGame()
@@ -74,7 +74,7 @@ public class UIManager : MonoBehaviour
             AudioManager.Instance.PlayButtonSound();
         }
 
-        Time.timeScale = 1f; // Reset lại time scale trước khi restart
+        Time.timeScale = 1f; 
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
@@ -85,30 +85,29 @@ public class UIManager : MonoBehaviour
             AudioManager.Instance.PlayButtonSound();
         }
 
-        Time.timeScale = 1f; // Reset time scale trước khi quit
+        Time.timeScale = 1f;
 
 #if UNITY_EDITOR
         // Nếu đang chạy trong Unity Editor → dừng Play Mode
         EditorApplication.isPlaying = false;
 #else
-        // Nếu đã build ra file → thoát game
+        
         Application.Quit();
 #endif
     }
 
     void Update()
     {
-        // Kiểm tra nếu game đang trong start panel hoặc end panel thì không cho pause
+        
         bool canPause = !startPanel.activeSelf && !EndPanel.activeSelf;
         
         if (canPause && pauseMenuManager != null && Input.GetKeyDown(KeyCode.Escape))
         {
-            // Để PauseMenuManager xử lý logic pause
-            // (PauseMenuManager đã có logic xử lý ESC trong Update của nó)
+            
         }
     }
 
-    // Method để check xem có thể pause không (gọi từ PauseMenuManager nếu cần)
+    
     public bool CanPause()
     {
         return !startPanel.activeSelf && !EndPanel.activeSelf;

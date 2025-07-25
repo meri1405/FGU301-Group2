@@ -55,7 +55,7 @@ public class PlayerDash : MonoBehaviour
 
         Debug.Log("Dash used. Wait until 20 more kills to use again.");
     }
-    // Gọi hàm này khi player giết zombie
+   
     public void OnEnemyKilled()
     {
         if (!canDash)
